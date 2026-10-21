@@ -35,6 +35,7 @@ gridcraft-xlsx = { workspace = true, features = ["test-support"] }
 sys-locale = { workspace = true }
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
+js-sys = "0.3"
 # Read the browser's preferred language for the first-run web interface language.
 web-sys = { version = "0.3", features = ["Window", "Navigator"] }
 

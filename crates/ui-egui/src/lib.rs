@@ -8,6 +8,7 @@
 
 pub mod backstage;
 mod border_preview;
+pub mod c0_host;
 mod cell_pictures;
 pub mod chartview;
 pub mod control;
@@ -221,11 +222,13 @@ pub struct Chrome {
     /// The ribbon's File tab and the Backstage view it opens (also reached by keyboard and
     /// commands such as `ui.backstage`).
     pub file_tab: bool,
+    pub community_links: bool,
+    pub agent_control: bool,
 }
 
 impl Default for Chrome {
     fn default() -> Self {
-        Chrome { title_bar: true, file_tab: true }
+        Chrome { title_bar: true, file_tab: true, community_links: true, agent_control: true }
     }
 }
 
@@ -374,6 +377,7 @@ impl SheetApp {
     }
 
     fn run_command(&mut self, id: &str, params: Json) -> Result<Json, String> {
+        c0_host::check_command(self, id, &params)?;
         if matches!(id, "file.save" | "file.saveAs" | "file.saveBytes") {
             self.store_view_state();
         }
@@ -1094,6 +1098,7 @@ impl SheetApp {
             ctx.request_repaint();
         }
         control::poll(self, ctx);
+        c0_host::poll(self, ctx);
         // Files read asynchronously (web file picker, dropped files).
         let arrived: Vec<(String, Vec<u8>)> = self
             .services
@@ -1296,7 +1301,7 @@ pub fn now_ms() -> f64 {
     }
     #[cfg(target_arch = "wasm32")]
     {
-        0.0
+        js_sys::Date::now()
     }
 }
 

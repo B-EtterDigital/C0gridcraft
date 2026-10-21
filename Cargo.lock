@@ -1643,6 +1643,7 @@ dependencies = [
  "gridcraft-engine",
  "gridcraft-xlsx",
  "image",
+ "js-sys",
  "log",
  "serde",
  "serde_json",

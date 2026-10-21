@@ -29,7 +29,10 @@ pub fn start() {
         // workbooks in it and stores what it saves (`host`).
         let bridge = if query_param("host").as_deref() == Some("parent") { crate::host::Bridge::new() } else { None };
         let app_bridge = bridge.clone();
-        let result = eframe::WebRunner::new()
+        let runner = eframe::WebRunner::new();
+        #[cfg(feature = "page-control")]
+        crate::page_control::runner(&runner);
+        let result = runner
             .start(
                 canvas,
                 options,
@@ -65,6 +68,8 @@ pub fn start() {
                         }
                         bridge.post_ready();
                     }
+                    #[cfg(feature = "page-control")]
+                    let app = crate::page_control::attach(app, &cc.egui_ctx);
                     Ok(Box::new(WebShell { app, inbox, bridge: app_bridge }))
                 }),
             )
