@@ -5,7 +5,7 @@ use std::sync::{
     atomic::{AtomicBool, Ordering},
 };
 
-use gridcraft_engine::io;
+use gridcraft_engine::{DocState, Session, io};
 use serde_json::{Value, json};
 
 use super::MAX_FILE_BYTES;
@@ -27,18 +27,38 @@ fn replacement_id() -> egui::Id {
 pub(super) fn document_bytes(app: &SheetApp, params: &Value) -> Result<Value, String> {
     let format = match params.get("format") {
         None => "xlsx",
-        Some(Value::String(format)) if matches!(format.as_str(), "xlsx" | "csv") => format,
-        _ => return Err("format must be xlsx or csv".into()),
+        Some(Value::String(format)) if matches!(format.as_str(), "xlsx" | "csv" | "pdf") => format,
+        _ => return Err("format must be xlsx, csv or pdf".into()),
     };
     let d = app.session.active().ok_or("no workbook open")?;
+    let title = d.display_title();
+    let stem = std::path::Path::new(&title).file_stem().and_then(|s| s.to_str()).unwrap_or("Book");
+    if format == "pdf" {
+        return pdf_bytes(d, params, stem);
+    }
     // Use the same encoder as file.saveBytes, without store_view_state, edit commits or a save.
     let bytes = io::save_bytes(&d.wb, &format!("x.{format}")).map_err(|e| e.to_string())?;
     if bytes.len() > MAX_FILE_BYTES {
         return Err("document exceeds the host file limit".into());
     }
-    let title = d.display_title();
-    let stem = std::path::Path::new(&title).file_stem().and_then(|s| s.to_str()).unwrap_or("Book");
     Ok(json!({"name": format!("{stem}.{format}"), "format": format, "bytes": io::base64_encode(&bytes), "revision": d.revision}))
+}
+
+/// The engine's own PDF writer (`file.exportPdf`, which also backs print), run on a private
+/// session holding a copy of the committed workbook: the open document keeps its dirty state,
+/// history, revision and journal, and no path is involved, so the browser has no file system to
+/// refuse. `sheets` ("active" or "all"), `range` and `fitToPage` pass through to the engine.
+fn pdf_bytes(d: &DocState, params: &Value, stem: &str) -> Result<Value, String> {
+    let mut scratch = Session::new();
+    scratch.add_document(DocState { undo: vec![], redo: vec![], ..d.clone() });
+    let options: serde_json::Map<String, Value> =
+        ["sheets", "range", "fitToPage"].into_iter().filter_map(|k| params.get(k).map(|v| (k.to_string(), v.clone()))).collect();
+    let result = scratch.run("file.exportPdf", Value::Object(options))?;
+    let bytes = result.get("base64").and_then(Value::as_str).ok_or("the PDF writer returned no bytes")?;
+    if bytes.len() > MAX_FILE_BYTES.div_ceil(3).saturating_mul(4) {
+        return Err("document exceeds the host file limit".into());
+    }
+    Ok(json!({"name": format!("{stem}.pdf"), "format": "pdf", "bytes": bytes, "revision": d.revision, "pages": result["pages"]}))
 }
 
 pub(super) fn open(app: &mut SheetApp, ctx: &egui::Context, params: &Value) -> Result<Value, String> {

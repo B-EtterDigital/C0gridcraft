@@ -224,11 +224,12 @@ pub struct Chrome {
     pub file_tab: bool,
     pub community_links: bool,
     pub agent_control: bool,
+    pub layout: c0_host::Layout,
 }
 
 impl Default for Chrome {
     fn default() -> Self {
-        Chrome { title_bar: true, file_tab: true, community_links: true, agent_control: true }
+        Chrome { title_bar: true, file_tab: true, community_links: true, agent_control: true, layout: c0_host::Layout::default() }
     }
 }
 
@@ -1160,7 +1161,7 @@ impl SheetApp {
             // File tab: the Backstage view replaces everything below the title bar.
             backstage::show(self, ui);
         } else {
-            ribbon::show(self, ui);
+            c0_host::ribbon(self, ui);
             widgets::notice_bar(self, ui);
             if self.session.prefs.formula_bar {
                 formula_bar::show(self, ui);

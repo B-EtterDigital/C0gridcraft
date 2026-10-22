@@ -13,22 +13,26 @@ modified upstream file: replacement lines, indentation, tests and dependency boo
 | `apps/gridcraft-web/src/main.rs` | 2 | Feature-gated page-control module | Ordinary browser builds expose no page function | Not yet (embedding seam) |
 | `apps/gridcraft-web/src/web.rs` | 6 | Retain/lend WebRunner (4), attach app transport (2) | Run the same app and real control queue without presentation | Not yet (embedding seam) |
 | `crates/ui-egui/Cargo.toml` | 1 | wasm-only js-sys | Browser wall clock for the wasm bug fix | Yes, with clock fix |
-| `crates/ui-egui/src/control.rs` | 2 | Single c0-family arm (1), route ui.dialog through run (1 replacement) | Host contract plus uniform programmatic Agent Control refusal | Not yet (embedding seam) |
+| `crates/ui-egui/src/control.rs` | 3 | Single c0-family arm, now also routing ui.render (1 replacement), route ui.dialog through run (1 replacement) | Host contract, frameless render and uniform programmatic Agent Control refusal | Not yet (embedding seam) |
 | `crates/ui-egui/src/dialogs.rs` | 4 | Guard native Agent Control (1), pass community switch (2 replacements), About helper (1 replacement) | Hide promotional content and agent entry while retaining the existing dialog structure | Not yet (host chrome) |
-| `crates/ui-egui/src/lib.rs` | 6 | Register module (1), default-true Chrome fields/default (3), command guard (1), replacement poll (1) | Describe the host without persisting chrome; retain the upstream unsaved-changes path | Not yet (embedding seam) |
+| `crates/ui-egui/src/lib.rs` | 9 | Register module (1), default-true Chrome fields/default (3), command guard (1), replacement poll (1), layout field/default and ribbon call site (3) | Describe the host without persisting chrome; retain the upstream unsaved-changes path | Not yet (embedding seam) |
 | `crates/ui-egui/src/lib.rs` | 1 | Replace wasm now_ms zero with js_sys::Date::now | AutoSave, toast expiry and screenshot deadlines need a working browser clock | yes, as is |
-| `crates/ui-egui/src/ribbon.rs` | 6 | Agent Control guard and indented original render site | Hidden switch suppresses button and its KeyTip | Not yet (host chrome) |
+| `crates/ui-egui/src/ribbon.rs` | 7 | Agent Control guard and indented original render site (6), toolbar-off collapses to the tab row (1 replacement) | Hidden switch suppresses button and its KeyTip | Not yet (host chrome) |
+| `crates/ui-egui/src/grid.rs` | 1 | `paint_panes` made `pub(crate)` | Frameless ui.render draws the visible grid with the app's own painter | Yes, as is |
+| `crates/ui-egui/src/panes.rs` | 2 | Folded-dock early return (1), fold button in the pane header (1) | right_dock_collapsed | Not yet (host chrome) |
+| `crates/ui-egui/src/pivot_pane.rs` | 1 | Folded dock hides the PivotTable pane (1 replacement) | right_dock_collapsed | Not yet (host chrome) |
 | `crates/ui-egui/src/theme.rs` | 3 | Register host palette, resolve at Tokens::get, resolve widget palette during apply | Overrides reach all token reads and survive upstream appearance reapplication | Not yet (generic palette seam) |
+| `crates/ui-egui/src/widgets.rs` | 3 | Compact-ribbon hook at the top of `big_button` | toolbar_double turns big buttons into icon buttons | Not yet (host chrome) |
 | `crates/ui-egui/tests/host_chrome.rs` | 2 | Default-fill two existing Chrome literals | Retain original assertions after extending the host description | With Chrome extension |
 
-Total: 38 added lines in 11 modified upstream files, including replacements.
-Ratchet: 38
+Total: 50 added lines in 15 modified upstream files, including replacements.
+Ratchet: 50 (this lane added 12; older debt untouched)
 
 ## New files: no upstream patch debt
 
 - `c0/gridcraft-host/*`: page, build config, contract, debt and lane evidence.
 - `apps/gridcraft-web/src/page_control.rs`, `page_control/{bridge,files}.rs`: transport and bounded chooser.
-- `crates/ui-egui/src/c0_host.rs`, `c0_host/{c0_files,c0_panels}.rs`: host contract and lifecycle.
+- `crates/ui-egui/src/c0_host.rs`, `c0_host/{c0_files,c0_panels,c0_layout,c0_raster,c0_render}.rs`: host contract and lifecycle.
 - `crates/ui-egui/src/theme/host.rs`: context-local runtime palette.
 - `crates/ui-egui/tests/c0_*.rs`: native host, rendering, palette and unpainted-pass coverage.
 

@@ -7,6 +7,7 @@ use crate::SheetApp;
 use crate::theme::{self, Tokens};
 
 pub fn show(app: &mut SheetApp, ui: &mut Ui) {
+    let true = crate::c0_host::dock_open(app, ui) else { return };
     // The Comments pane is engine state (`review.showComments`, so agents can drive it); the other
     // panes are UI state. One pane shows at a time: opening another one closes Comments.
     if app.grid.pane.as_deref() == Some("comments") {
@@ -37,6 +38,7 @@ pub fn show(app: &mut SheetApp, ui: &mut Ui) {
                     }
                     app.grid.pane = None;
                 }
+                crate::c0_host::fold_button(app, ui);
             });
         });
         ui.separator();

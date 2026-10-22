@@ -199,7 +199,7 @@ fn invalid_imports_and_formats_leave_workbook_and_picker_intact() {
         assert!(app.dialog.is_none());
         assert!(pending.load(std::sync::atomic::Ordering::Relaxed));
     }
-    for format in [json!("pdf"), json!(3), Value::Null] {
+    for format in [json!("docx"), json!(3), Value::Null] {
         assert_eq!(reply(&mut app, &ctx, "c0.documentBytes", json!({"format":format}))["ok"], false);
     }
 }

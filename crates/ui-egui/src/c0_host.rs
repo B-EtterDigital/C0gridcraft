@@ -1,8 +1,13 @@
 //! C0sheet's guest contract over GridCraft's existing control and command paths.
 
 mod c0_files;
+mod c0_layout;
 mod c0_panels;
+mod c0_raster;
+mod c0_render;
 pub use c0_files::{begin_picker, picker_pending, poll};
+pub use c0_layout::Layout;
+pub(crate) use c0_layout::{compact_button, dock_open, fold_button, ribbon};
 
 use gridcraft_engine::{core::RangeRef, model::Visibility};
 use serde_json::{Value, json};
@@ -16,7 +21,7 @@ pub const METHODS: &[&str] = &["c0.inspect", "c0.goTo", "c0.documentBytes", "c0.
 
 pub fn handle(app: &mut SheetApp, ctx: &egui::Context, method: &str, params: &Value) -> Outcome {
     let result = dispatch(app, ctx, method, params);
-    if result.is_ok() && !matches!(method, "c0.inspect" | "c0.documentBytes") {
+    if result.is_ok() && !matches!(method, "c0.inspect" | "c0.documentBytes" | "ui.render") {
         ctx.request_repaint();
     }
     Outcome::Done(match result {
@@ -37,6 +42,7 @@ fn dispatch(app: &mut SheetApp, ctx: &egui::Context, method: &str, params: &Valu
         "c0.newDocument" => c0_files::new_document(app, ctx, params),
         "c0.cancelFileDialog" => Ok(json!({"cancelled": c0_files::cancel_picker(ctx)})),
         "c0.set" => c0_panels::set(app, ctx, params),
+        "ui.render" => c0_render::render(app, ctx, params),
         _ => Err(format!("unknown host method {method:?}")),
     }
 }
@@ -57,7 +63,10 @@ fn inspect(app: &SheetApp) -> Result<Value, String> {
         }))).collect::<Vec<_>>(),
         "canUndo": !d.undo.is_empty(), "canRedo": !d.redo.is_empty(),
         "panes": {"formulaBar": app.session.prefs.formula_bar, "headings": sh.show_headings,
-                  "gridlines": sh.show_gridlines, "statusBar": app.ui.status_bar},
+                  "gridlines": sh.show_gridlines, "statusBar": app.ui.status_bar,
+                  "toolbar": app.chrome.layout.toolbar, "toolbar_double": app.chrome.layout.toolbar_double,
+                  "toolbar_floating": app.chrome.layout.toolbar_floating,
+                  "right_dock_collapsed": app.chrome.layout.right_dock_collapsed},
         "ribbonCollapsed": app.ui.ribbon_collapsed, "theme": app.ui.theme_mode(),
     }))
 }

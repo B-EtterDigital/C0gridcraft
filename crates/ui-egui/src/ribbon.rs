@@ -164,7 +164,7 @@ pub fn title_bar(app: &mut SheetApp, ui: &mut Ui) {
 
 pub fn show(app: &mut SheetApp, ui: &mut Ui) {
     let t = Tokens::get(ui.ctx());
-    let collapsed = app.ui.ribbon_collapsed;
+    let collapsed = app.ui.ribbon_collapsed || !app.chrome.layout.toolbar;
     let h = if collapsed { 34.0 } else { 34.0 + 92.0 };
     egui::Panel::top("ribbon")
         .exact_size(h)

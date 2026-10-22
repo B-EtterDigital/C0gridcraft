@@ -58,7 +58,7 @@ fn visible_text(h: &egui_kittest::Harness<'_, SheetApp>) -> String {
 #[test]
 fn default_chrome_keeps_the_upstream_about_and_agent_button() {
     let mut app = app();
-    assert_eq!(app.chrome, Chrome { title_bar: true, file_tab: true, community_links: true, agent_control: true });
+    assert_eq!(app.chrome, Chrome::default());
     app.ui.ribbon_tab = "Automate".into();
     let mut h = harness(app);
     assert!(visible_text(&h).lines().any(|line| line == "Agent"));

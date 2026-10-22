@@ -52,7 +52,7 @@ pub fn parse(text: &str) -> Result<(String, Value), String> {
 pub fn reads_only(method: &str, params: &Value) -> bool {
     match method {
         "ui.inspect" | "document.inspect" | "sheet.read" | "cell.get" | "selection.stats" | "engine.commands" | "engine.journal" | "c0.inspect"
-        | "c0.documentBytes" => true,
+        | "c0.documentBytes" | "ui.render" => true,
         "engine.execute" | "command" | "ui.menu.invoke" => params
             .get("command")
             .or_else(|| params.get("id"))
@@ -93,7 +93,7 @@ mod tests {
 
     #[test]
     fn read_methods_and_command_aliases_do_not_request_presentation() {
-        for method in ["c0.inspect", "c0.documentBytes", "ui.inspect", "document.inspect", "engine.commands", "cell.get"] {
+        for method in ["c0.inspect", "c0.documentBytes", "ui.render", "ui.inspect", "document.inspect", "engine.commands", "cell.get"] {
             assert!(reads_only(method, &json!({})), "{method}");
         }
         for method in ["c0.goTo", "c0.openFile", "c0.newDocument", "c0.cancelFileDialog", "c0.set", "ui.screenshot", "unknown"] {

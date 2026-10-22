@@ -37,6 +37,10 @@ pub(super) fn set(app: &mut SheetApp, ctx: &egui::Context, params: &Value) -> Re
                     | "headings"
                     | "gridlines"
                     | "status_bar"
+                    | "toolbar"
+                    | "toolbar_double"
+                    | "toolbar_floating"
+                    | "right_dock_collapsed"
             ) {
                 report.unknown.push(key_path);
                 continue;
@@ -80,6 +84,22 @@ pub(super) fn set(app: &mut SheetApp, ctx: &egui::Context, params: &Value) -> Re
                 "gridlines" => app.run("view.gridlines", json!({"on": on})),
                 "status_bar" => {
                     app.ui.status_bar = on;
+                    Ok(json!({}))
+                }
+                "toolbar" => {
+                    app.chrome.layout.toolbar = on;
+                    Ok(json!({}))
+                }
+                "toolbar_double" => {
+                    app.chrome.layout.toolbar_double = on;
+                    Ok(json!({}))
+                }
+                "toolbar_floating" => {
+                    app.chrome.layout.toolbar_floating = on;
+                    Ok(json!({}))
+                }
+                "right_dock_collapsed" => {
+                    app.chrome.layout.right_dock_collapsed = on;
                     Ok(json!({}))
                 }
                 _ => Err("unregistered panel".into()),

@@ -43,6 +43,9 @@ pub fn toggle_button(ui: &mut Ui, icon: Icon, on: bool, tip: &str) -> Response {
 
 /// Large ribbon button: 32px icon over a one- or two-line label.
 pub fn big_button(ui: &mut Ui, icon: Icon, label: &str, tip: &str, dropdown: bool) -> Response {
+    if let Some(r) = crate::c0_host::compact_button(ui, icon, label, tip, dropdown) {
+        return r;
+    }
     let t = Tokens::get(ui.ctx());
     let font = theme::ui_font(11.5);
     let label = tr(ui, label);

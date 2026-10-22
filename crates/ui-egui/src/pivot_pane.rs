@@ -18,7 +18,7 @@ pub fn active_pivot(app: &SheetApp) -> Option<String> {
 }
 
 pub fn show(app: &mut SheetApp, ui: &mut Ui) {
-    let Some(name) = active_pivot(app) else { return };
+    let Some(name) = active_pivot(app).filter(|_| !app.chrome.layout.right_dock_collapsed) else { return };
     let t = Tokens::get(ui.ctx());
     let lang = i18n::current(ui.ctx());
     let info = match app.session.run("pivot.fields", json!({"pivot": name})) {

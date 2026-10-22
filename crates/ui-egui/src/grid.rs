@@ -801,7 +801,7 @@ pub fn show(app: &mut SheetApp, ui: &mut egui::Ui) {
 
 /// Normal view: up to four panes (frozen rows/columns), each painted with its own clip.
 #[allow(clippy::too_many_arguments)]
-fn paint_panes(
+pub(crate) fn paint_panes(
     app: &SheetApp,
     painter: &Painter,
     geo: &Geo,

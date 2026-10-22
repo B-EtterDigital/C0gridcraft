@@ -61,7 +61,7 @@ native feature tests, the wasm check and the Trunk build cover browser compilati
 |---|---|---|
 | `c0.inspect` | `{}` | Workbook and host state described below |
 | `c0.goTo` | `{sheet?: name or zero-based index, ref?: "D800:F802"}` | Existing activation result `{sheet,name}` or selection result `{selection,active}` |
-| `c0.documentBytes` | `{format?: "xlsx" or "csv"}`; default xlsx | `{name,format,bytes,revision}`; `bytes` is standard padded base64 |
+| `c0.documentBytes` | `{format?: "xlsx", "csv" or "pdf"}`; default xlsx; pdf also takes `sheets?` ("active" or "all"), `range?`, `fitToPage?` | `{name,format,bytes,revision}` (pdf adds `pages`); `bytes` is standard padded base64 |
 | `c0.openFile` | `{name,bytes}` | Existing `file.open` result `{index,title,sheets,warnings}` or `{pending:true}` |
 | `c0.newDocument` | `{template?: "blank"}`; empty string also means blank | Existing `file.new` result `{index,title}` or `{pending:true}` |
 | `c0.cancelFileDialog` | `{}` | `{cancelled: boolean}` |
@@ -77,7 +77,8 @@ native feature tests, the wasm check and the Trunk build cover browser compilati
   "names": [{"name":"Rate","ref":"=Sheet1!$A$2"}],
   "tables": [{"name":"Sales","sheet":"Sheet1","ref":"A1:B3"}],
   "canUndo": false, "canRedo": false,
-  "panes": {"formulaBar":true,"headings":true,"gridlines":true,"statusBar":true},
+  "panes": {"formulaBar":true,"headings":true,"gridlines":true,"statusBar":true,
+            "toolbar":true,"toolbar_double":false,"toolbar_floating":false,"right_dock_collapsed":false},
   "ribbonCollapsed": false, "theme": "light"
 }
 ```
@@ -97,7 +98,10 @@ If draft validation fails, navigation and replacement return the validation erro
 retain the draft and leave the workbook in place, without opening a validation message box.
 
 `documentBytes` uses the same encoder and naming as `file.saveBytes`. CSV exports the active
-sheet. It reads the committed workbook, leaves an in-progress edit alone, and changes neither
+sheet. PDF is the engine's own writer (`file.exportPdf`, the one behind Print) run on a private
+session holding a copy of the committed workbook, with no path, so the browser's missing file
+system is not involved and the open document's journal, history and revision stay untouched.
+`sheets`, `range` and `fitToPage` pass to the engine and its errors come back in the reply. It reads the committed workbook, leaves an in-progress edit alone, and changes neither
 dirty/saved state, revision, undo/redo nor scroll state. It never invokes a picker or download.
 
 `openFile` sends bytes through GridCraft's importer and `file.open`. Every existing importer and
@@ -146,6 +150,41 @@ All panel values are booleans. Known non-booleans go to `invalid`; unrecognised 
 | `headings` | Existing `view.headings` workbook setting |
 | `gridlines` | Existing `view.gridlines` workbook setting |
 | `status_bar` | Existing `UiState.status_bar` |
+| `toolbar` | The ribbon's command card (default true); false collapses the ribbon to its tab row. Independent of `ribbon_collapsed`, which stays the user's own switch |
+| `toolbar_double` | Compact ribbon: every big button becomes an icon button (accessible name and tooltip kept), so the ribbon is narrower; its height is unchanged because this ribbon's groups stack up to three rows |
+| `toolbar_floating` | The whole ribbon becomes a movable palette over the canvas instead of a docked panel; the canvas takes the docked height back |
+| `right_dock_collapsed` | The right dock (task panes and the PivotTable fields pane) folds to a narrow icon strip; each pane's icon opens it |
+
+### Tool modes: the ribbon
+
+GridCraft has a ribbon, not a tool strip, so the PhotoCraft keys map onto it. The combinations:
+
+| `toolbar` | `toolbar_double` | `toolbar_floating` | What is drawn |
+|---|---|---|---|
+| true | false | false | Upstream's ribbon, docked and full (the default) |
+| true | true | false | Docked, compact: icon buttons in the same card height |
+| false | any | false | Docked, collapsed to the tab row |
+| true | false | true | A floating full ribbon |
+| true | true | true | A floating compact ribbon |
+| false | any | true | A floating tab row |
+
+The floating ribbon is an egui area above the canvas with a grip (accessible name "Move Toolbar")
+to drag it by; it stays inside the canvas area. Its position is not part of `c0.set`. The right dock:
+the unfolded dock is upstream's, and with no pane open it draws nothing, as before. Folded, it is a
+34 pt strip with an icon for Comments, Watch Window, Selection and Format Chart Area (plus PivotTable
+Fields while a pivot cell is active). An icon opens its pane and unfolds the dock to the width it had;
+the chevron unfolds it as it was; an unfolded pane's header has a button that folds it again. The
+change is immediate and only the canvas width changes.
+
+## `ui.render`
+
+`ui.render {sheet?, scale?}` (a control method, not a `c0.` one) returns `{base64,width,height,sheet,scale}`:
+a PNG of the visible grid, the area the grid occupies on screen, without the ribbon, panes or window.
+`sheet` is a name or zero-based index (default: the active sheet, hidden sheets are refused);
+`scale` is 0.25 to 4 (default 1). It is drawn by the app's own grid painters on a private egui
+context and rasterised on the CPU, so it needs no presented frame, works for a hidden guest and
+changes nothing in the open app. Before the guest was ever laid out it uses 960 x 600 points. Right-to-left
+sheets are not mirrored and Page Layout view is drawn as the normal grid.
 
 Chrome describes the host and is not persisted as user preferences. Workbook view commands retain
 their upstream dirty/history semantics. Other visibility state retains its existing persistence.
@@ -202,7 +241,7 @@ Run heavy commands with `smoac-slot run heavy 2 3600 -- env CARGO_BUILD_JOBS=2` 
 `smoac-slot run gate 3 3600` only if heavy refuses admission). At most two Cargo jobs run at once.
 
 ```sh
-cargo test -p gridcraft-ui-egui --test c0_host_contract --test c0_chrome --test c0_theme --test c0_control_passes
+cargo test -p gridcraft-ui-egui --test c0_host_contract --test c0_chrome --test c0_theme --test c0_control_passes --test c0_layout --test c0_export --test c0_render
 cargo test -p gridcraft-web --features page-control
 cargo check --target wasm32-unknown-unknown -p gridcraft-web --features page-control
 cargo clippy -p gridcraft-ui-egui -p gridcraft-web --all-targets --features page-control -- -D warnings

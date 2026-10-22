@@ -168,7 +168,7 @@ pub fn handle(app: &mut SheetApp, ctx: &egui::Context, method: &str, p: &Json) -
     let s = |k: &str| p.get(k).and_then(Json::as_str);
     let f = |k: &str| p.get(k).and_then(Json::as_f64).unwrap_or(0.0) as f32;
     let out = match method {
-        other if other.starts_with("c0.") => return crate::c0_host::handle(app, ctx, other, p),
+        other if other.starts_with("c0.") || other == "ui.render" => return crate::c0_host::handle(app, ctx, other, p),
         "engine.execute" | "command" | "ui.menu.invoke" => {
             let Some(id) = s("command").or(s("id")) else { return err("missing `command`") };
             let params = p.get("params").cloned().unwrap_or(json!({}));
