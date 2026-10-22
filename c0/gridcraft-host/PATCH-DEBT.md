@@ -13,9 +13,9 @@ modified upstream file: replacement lines, indentation, tests and dependency boo
 | `apps/gridcraft-web/src/main.rs` | 2 | Feature-gated page-control module | Ordinary browser builds expose no page function | Not yet (embedding seam) |
 | `apps/gridcraft-web/src/web.rs` | 6 | Retain/lend WebRunner (4), attach app transport (2) | Run the same app and real control queue without presentation | Not yet (embedding seam) |
 | `crates/ui-egui/Cargo.toml` | 1 | wasm-only js-sys | Browser wall clock for the wasm bug fix | Yes, with clock fix |
-| `crates/ui-egui/src/control.rs` | 3 | Single c0-family arm, now also routing ui.render (1 replacement), route ui.dialog through run (1 replacement) | Host contract, frameless render and uniform programmatic Agent Control refusal | Not yet (embedding seam) |
+| `crates/ui-egui/src/control.rs` | 2 | Single c0-family arm, which also routes ui.render (1), route ui.dialog through run (1 replacement) | Host contract, frameless render and uniform programmatic Agent Control refusal | Not yet (embedding seam) |
 | `crates/ui-egui/src/dialogs.rs` | 4 | Guard native Agent Control (1), pass community switch (2 replacements), About helper (1 replacement) | Hide promotional content and agent entry while retaining the existing dialog structure | Not yet (host chrome) |
-| `crates/ui-egui/src/lib.rs` | 9 | Register module (1), default-true Chrome fields/default (3), command guard (1), replacement poll (1), layout field/default and ribbon call site (3) | Describe the host without persisting chrome; retain the upstream unsaved-changes path | Not yet (embedding seam) |
+| `crates/ui-egui/src/lib.rs` | 8 | Register module (1), default-true Chrome fields/default (3), command guard (1), replacement poll (1), layout field (1) and ribbon call site (1 replacement); the default's own line is the existing replacement | Describe the host without persisting chrome; retain the upstream unsaved-changes path | Not yet (embedding seam) |
 | `crates/ui-egui/src/lib.rs` | 1 | Replace wasm now_ms zero with js_sys::Date::now | AutoSave, toast expiry and screenshot deadlines need a working browser clock | yes, as is |
 | `crates/ui-egui/src/ribbon.rs` | 7 | Agent Control guard and indented original render site (6), toolbar-off collapses to the tab row (1 replacement) | Hidden switch suppresses button and its KeyTip | Not yet (host chrome) |
 | `crates/ui-egui/src/grid.rs` | 1 | `paint_panes` made `pub(crate)` | Frameless ui.render draws the visible grid with the app's own painter | Yes, as is |
@@ -25,8 +25,8 @@ modified upstream file: replacement lines, indentation, tests and dependency boo
 | `crates/ui-egui/src/widgets.rs` | 3 | Compact-ribbon hook at the top of `big_button` | toolbar_double turns big buttons into icon buttons | Not yet (host chrome) |
 | `crates/ui-egui/tests/host_chrome.rs` | 2 | Default-fill two existing Chrome literals | Retain original assertions after extending the host description | With Chrome extension |
 
-Total: 50 added lines in 15 modified upstream files, including replacements.
-Ratchet: 50 (this lane added 12; older debt untouched)
+Total: 48 added lines in 15 modified upstream files, including replacements.
+Ratchet: 48 (this lane added 10, from 38; older debt untouched)
 
 ## New files: no upstream patch debt
 
@@ -47,6 +47,8 @@ Ratchet: 50 (this lane added 12; older debt untouched)
 | `c0_host` and `c0_host/c0_files.rs` | Draft validation and import warnings can set app.message; host calls return validation errors and retain import warnings in results/notices | Invalid-draft retention and generated legacy XLS warning tests |
 | `c0_host/c0_files.rs` | io::save_bytes and file.saveBytes use the same encoder; snapshots intentionally leave drafts and UI scroll state alone | XLSX/CSV round trips and immutable-state assertions |
 | `page_control/files.rs` | rfd FileHandle.inner exposes Blob size and array_buffer; Services.inbox owns importer, warning and password handling | wasm check/build and atomic cancellation test |
+| `c0_host/c0_layout.rs` | Upstream's ribbon draws big buttons through `widgets::big_button` and its panel as `Panel::top("ribbon")` at 34 + 92 pt; panes live in `panes::show`; the grid area is `app.grid.rect` | Layout tests: card height, compact width, floating bounds, fold/unfold |
+| `c0_host/c0_render.rs`, `c0_raster.rs` | `grid::paint_panes`, `paint_headers`, `chartview::paint_objects` and `outline::paint` signatures; egui tessellation and texture deltas | Render tests: pixel assertions on cells, headings and gridlines at two scales |
 | Chrome switches | About is the sole ArtCraft/getartcraft/Discord promotional render site; credits are separate; native menus call open_dialog | Source grep plus rendered About/Automate tests and command refusal tests |
 | `theme/host.rs` | Every scalar Color32 token must be registered; theme::apply derives both widget palettes | Complete field registry test, clear/default/system tests and light/dark persistence |
 
