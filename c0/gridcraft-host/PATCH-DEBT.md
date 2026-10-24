@@ -16,7 +16,6 @@ modified upstream file: replacement lines, indentation, tests and dependency boo
 | `crates/ui-egui/src/control.rs` | 2 | Single c0-family arm, which also routes ui.render (1), route ui.dialog through run (1 replacement) | Host contract, frameless render and uniform programmatic Agent Control refusal | Not yet (embedding seam) |
 | `crates/ui-egui/src/dialogs.rs` | 4 | Guard native Agent Control (1), pass community switch (2 replacements), About helper (1 replacement) | Hide promotional content and agent entry while retaining the existing dialog structure | Not yet (host chrome) |
 | `crates/ui-egui/src/lib.rs` | 8 | Register module (1), default-true Chrome fields/default (3), command guard (1), replacement poll (1), layout field (1) and ribbon call site (1 replacement); the default's own line is the existing replacement | Describe the host without persisting chrome; retain the upstream unsaved-changes path | Not yet (embedding seam) |
-| `crates/ui-egui/src/lib.rs` | 1 | Replace wasm now_ms zero with js_sys::Date::now | AutoSave, toast expiry and screenshot deadlines need a working browser clock | yes, as is |
 | `crates/ui-egui/src/ribbon.rs` | 7 | Agent Control guard and indented original render site (6), toolbar-off collapses to the tab row (1 replacement) | Hidden switch suppresses button and its KeyTip | Not yet (host chrome) |
 | `crates/ui-egui/src/grid.rs` | 1 | `paint_panes` made `pub(crate)` | Frameless ui.render draws the visible grid with the app's own painter | Yes, as is |
 | `crates/ui-egui/src/panes.rs` | 2 | Folded-dock early return (1), fold button in the pane header (1) | right_dock_collapsed | Not yet (host chrome) |
@@ -25,8 +24,8 @@ modified upstream file: replacement lines, indentation, tests and dependency boo
 | `crates/ui-egui/src/widgets.rs` | 3 | Compact-ribbon hook at the top of `big_button` | toolbar_double turns big buttons into icon buttons | Not yet (host chrome) |
 | `crates/ui-egui/tests/host_chrome.rs` | 2 | Default-fill two existing Chrome literals | Retain original assertions after extending the host description | With Chrome extension |
 
-Total: 48 added lines in 15 modified upstream files, including replacements.
-Ratchet: 48 (this lane added 10, from 38; older debt untouched)
+Total: 47 added lines in 15 modified upstream files, including replacements.
+Ratchet: 47 (upstream took the wasm clock fix on 2026-10-25)
 
 ## New files: no upstream patch debt
 
