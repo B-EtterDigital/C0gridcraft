@@ -126,5 +126,8 @@ fn assign(t: &mut Tokens, key: &str, color: Color32) -> bool {
         notice_warn_border,
         notice_info_bg,
         notice_info_border,
+        error_check_green,
+        warning_fill,
+        warning_ink,
     )
 }
