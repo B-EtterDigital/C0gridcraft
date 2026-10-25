@@ -79,7 +79,8 @@ pub(super) fn render(app: &SheetApp, ctx: &egui::Context, params: &Value) -> Res
         let quads = crate::grid::paint_panes(app, &painter, &geo, &wb, si, sh, &sel, outline, &mut cf, &t);
         crate::chartview::paint_objects(app, &painter.with_clip_rect(geo.cells), &geo, &wb, si, sh);
         if sh.show_headings {
-            crate::grid::paint_headers(&painter, &geo, sh, &sel, &t, &quads);
+            let headings = crate::grid::table_headings(&geo, sh, sel.active);
+            crate::grid::paint_headers(&painter, &geo, sh, &sel, &t, &quads, &headings);
         }
         crate::outline::paint(&painter, &geo, sh, &t);
     });
