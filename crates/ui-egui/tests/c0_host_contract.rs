@@ -334,3 +334,104 @@ fn legacy_import_warnings_are_returned_without_a_message_box() {
     assert!(app.notice.is_some());
     assert_eq!(ok(&mut app, &ctx, "cell.get", json!({"cell":"A1"}))["value"].as_f64(), Some(42.0));
 }
+
+#[test]
+fn selection_reads_cells_formulas_and_headers() {
+    let mut app = app();
+    let ctx = egui::Context::default();
+    for (cell, input) in [("A1", "Name"), ("B1", "Qty"), ("A2", "pens"), ("B2", "3"), ("B3", "=B2*2")] {
+        app.run("cell.set", json!({"cell": cell, "input": input})).unwrap();
+    }
+    ok(&mut app, &ctx, "c0.goTo", json!({"ref":"A2:B3"}));
+    let r = ok(&mut app, &ctx, "c0.selection", json!({}));
+    assert_eq!(r["kind"], "cells");
+    assert_eq!(r["sheet"], "Sheet1");
+    assert_eq!(r["range"], "A2:B3");
+    assert_eq!(r["active"], "A2");
+    assert_eq!(r["values"], json!([["pens", "3"], ["", "6"]]));
+    assert_eq!(r["formulas"], json!([[null, null], [null, "=B2*2"]]));
+    assert_eq!(r["headers"], json!(["Name", "Qty"]));
+    assert_eq!(r["truncated"], false);
+}
+
+#[test]
+fn selection_is_capped_at_two_thousand_cells() {
+    let mut app = app();
+    let ctx = egui::Context::default();
+    app.run("cell.set", json!({"cell": "A1", "input": "x"})).unwrap();
+    app.run("cell.set", json!({"cell": "J1000", "input": "y"})).unwrap();
+    ok(&mut app, &ctx, "c0.goTo", json!({"ref":"A1:J1000"}));
+    let r = ok(&mut app, &ctx, "c0.selection", json!({}));
+    assert_eq!(r["truncated"], true);
+    assert_eq!(r["values"].as_array().unwrap().len(), 200);
+    assert_eq!(r["range"], "A1:J200");
+}
+
+#[test]
+fn place_writes_a_block_as_one_undo_step_and_marks_dirty() {
+    let mut app = app();
+    let ctx = egui::Context::default();
+    app.run("cell.set", json!({"cell": "B2", "input": "old"})).unwrap();
+    let d = app.session.active_mut().unwrap();
+    d.saved = d.wb.clone();
+    let steps = d.undo.len();
+    let r = ok(&mut app, &ctx, "c0.place", json!({"cells": {"at": "B2", "values": [["a", 5], ["7", null]], "formulas": [[null, null], [null, "=C2*2"]]}}));
+    assert_eq!(r["placed"], "B2:C3");
+    assert_eq!(r["cells"], 4);
+    assert_eq!(r["formulas"], 1);
+    assert!(app.session.active().unwrap().is_dirty());
+    assert_eq!(app.session.active().unwrap().undo.len(), steps + 1);
+    assert_eq!(ok(&mut app, &ctx, "cell.get", json!({"cell":"C2"}))["type"], "number");
+    assert_eq!(ok(&mut app, &ctx, "cell.get", json!({"cell":"B3"}))["type"], "number");
+    assert_eq!(ok(&mut app, &ctx, "cell.get", json!({"cell":"C3"}))["formula"], "=C2*2");
+    assert_eq!(ok(&mut app, &ctx, "cell.get", json!({"cell":"C3"}))["value"].as_f64(), Some(10.0));
+    app.run("edit.undo", json!({})).unwrap();
+    assert_eq!(ok(&mut app, &ctx, "cell.get", json!({"cell":"B2"}))["value"], "old");
+    assert_eq!(ok(&mut app, &ctx, "cell.get", json!({"cell":"C2"}))["type"], "empty");
+    assert_eq!(ok(&mut app, &ctx, "cell.get", json!({"cell":"C3"}))["type"], "empty");
+}
+
+#[test]
+fn place_a_single_formula_at_a_cell_or_the_active_cell() {
+    let mut app = app();
+    let ctx = egui::Context::default();
+    app.run("cell.set", json!({"cell": "A1", "input": "4"})).unwrap();
+    let steps = app.session.active().unwrap().undo.len();
+    let r = ok(&mut app, &ctx, "c0.place", json!({"formula": "=A1+1", "at": "C5"}));
+    assert_eq!(r["placed"], "C5");
+    assert_eq!(ok(&mut app, &ctx, "cell.get", json!({"cell":"C5"}))["value"].as_f64(), Some(5.0));
+    ok(&mut app, &ctx, "c0.goTo", json!({"ref":"E1"}));
+    ok(&mut app, &ctx, "c0.place", json!({"formula": "=A1*3"}));
+    assert_eq!(ok(&mut app, &ctx, "cell.get", json!({"cell":"E1"}))["value"].as_f64(), Some(12.0));
+    assert_eq!(app.session.active().unwrap().undo.len(), steps + 2);
+    app.run("edit.undo", json!({})).unwrap();
+    assert_eq!(ok(&mut app, &ctx, "cell.get", json!({"cell":"E1"}))["type"], "empty");
+    assert_eq!(ok(&mut app, &ctx, "cell.get", json!({"cell":"C5"}))["type"], "number");
+}
+
+#[test]
+fn place_rejects_bad_params_with_a_message_and_changes_nothing() {
+    let mut app = app();
+    let ctx = egui::Context::default();
+    for params in [
+        json!({}),
+        json!({"cells": {"values": [["x"]]}}),
+        json!({"cells": {"at": "not a cell", "values": [["x"]]}}),
+        json!({"cells": {"at": "A1"}}),
+        json!({"cells": {"at": "A1", "values": "x"}}),
+        json!({"cells": {"at": "A1", "values": [{"a": 1}]}}),
+        json!({"cells": {"at": "A1", "values": [[{"a": 1}]]}}),
+        json!({"cells": {"at": "A1", "formulas": [["SUM(1)"]]}}),
+        json!({"cells": {"at": "A1", "values": [["fine", "x"]], "formulas": [[null, "=("]]}}),
+        json!({"cells": {"at": "XFD1048576", "values": [["a", "b"]]}}),
+        json!({"formula": "A1"}),
+        json!({"formula": "=1", "cells": {"at": "A1", "values": [["x"]]}}),
+    ] {
+        let result = reply(&mut app, &ctx, "c0.place", params.clone());
+        assert_eq!(result["ok"], false, "{params}");
+        assert!(result["error"].as_str().is_some_and(|m| !m.is_empty()), "{params}");
+    }
+    assert!(!app.session.active().unwrap().is_dirty(), "a refused placement leaves the document clean");
+    assert!(app.session.active().unwrap().undo.is_empty());
+    assert_eq!(ok(&mut app, &ctx, "cell.get", json!({"cell":"A1"}))["type"], "empty");
+}

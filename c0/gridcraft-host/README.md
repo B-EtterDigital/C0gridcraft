@@ -66,6 +66,8 @@ native feature tests, the wasm check and the Trunk build cover browser compilati
 | `c0.newDocument` | `{template?: "blank"}`; empty string also means blank | Existing `file.new` result `{index,title}` or `{pending:true}` |
 | `c0.cancelFileDialog` | `{}` | `{cancelled: boolean}` |
 | `c0.set` | `{themeTokens?,panels?}` | `{applied: string[],unknown: string[],invalid: string[]}` |
+| `c0.selection` | `{}` | `{kind:"cells",sheet,range,active,values:string[][],formulas:(string\|null)[][],headers:string[],selection,truncated}`; values as shown; at most 2,000 cells (whole rows, `truncated:true` and `range` is the part returned); a huge selection is first cut to the used range |
+| `c0.place` | `{cells:{at,values?,formulas?}}` or `{formula,at?}` (`at` defaults to the active cell) | `{placed:"B2:C3",sheet,cells,formulas}`; one undo step; null/absent entries leave the cell alone; formulas (strings starting with `=`) win over values; numeric strings become numbers; a failure rolls everything back and answers an error message |
 
 `inspect` returns:
 

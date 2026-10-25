@@ -31,7 +31,7 @@ Ratchet: 47 (upstream took the wasm clock fix on 2026-10-25)
 
 - `c0/gridcraft-host/*`: page, build config, contract, debt and lane evidence.
 - `apps/gridcraft-web/src/page_control.rs`, `page_control/{bridge,files}.rs`: transport and bounded chooser.
-- `crates/ui-egui/src/c0_host.rs`, `c0_host/{c0_files,c0_panels,c0_layout,c0_raster,c0_render}.rs`: host contract and lifecycle.
+- `crates/ui-egui/src/c0_host.rs`, `c0_host/{c0_ai,c0_files,c0_panels,c0_layout,c0_raster,c0_render}.rs` (c0_ai: `c0.selection`, `c0.place`; no upstream lines added): host contract and lifecycle.
 - `crates/ui-egui/src/theme/host.rs`: context-local runtime palette.
 - `crates/ui-egui/tests/c0_*.rs`: native host, rendering, palette and unpainted-pass coverage.
 

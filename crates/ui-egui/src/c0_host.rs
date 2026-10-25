@@ -1,5 +1,6 @@
 //! C0sheet's guest contract over GridCraft's existing control and command paths.
 
+mod c0_ai;
 mod c0_files;
 mod c0_layout;
 mod c0_panels;
@@ -17,11 +18,11 @@ use crate::{SheetApp, control::Outcome};
 /// Transport limits, shared by the page picker and the native contract.
 pub const MAX_FILE_BYTES: usize = 72 * 1024 * 1024;
 pub const MAX_REQUEST_BYTES: usize = 100 * 1024 * 1024;
-pub const METHODS: &[&str] = &["c0.inspect", "c0.goTo", "c0.documentBytes", "c0.openFile", "c0.newDocument", "c0.cancelFileDialog", "c0.set"];
+pub const METHODS: &[&str] = &["c0.inspect", "c0.goTo", "c0.documentBytes", "c0.openFile", "c0.newDocument", "c0.cancelFileDialog", "c0.set", "c0.selection", "c0.place"];
 
 pub fn handle(app: &mut SheetApp, ctx: &egui::Context, method: &str, params: &Value) -> Outcome {
     let result = dispatch(app, ctx, method, params);
-    if result.is_ok() && !matches!(method, "c0.inspect" | "c0.documentBytes" | "ui.render") {
+    if result.is_ok() && !matches!(method, "c0.inspect" | "c0.documentBytes" | "c0.selection" | "ui.render") {
         ctx.request_repaint();
     }
     Outcome::Done(match result {
@@ -42,6 +43,8 @@ fn dispatch(app: &mut SheetApp, ctx: &egui::Context, method: &str, params: &Valu
         "c0.newDocument" => c0_files::new_document(app, ctx, params),
         "c0.cancelFileDialog" => Ok(json!({"cancelled": c0_files::cancel_picker(ctx)})),
         "c0.set" => c0_panels::set(app, ctx, params),
+        "c0.selection" => c0_ai::selection(app),
+        "c0.place" => c0_ai::place(app, params),
         "ui.render" => c0_render::render(app, ctx, params),
         _ => Err(format!("unknown host method {method:?}")),
     }
