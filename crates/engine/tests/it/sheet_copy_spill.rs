@@ -26,7 +26,7 @@ fn copied_sheet_keeps_spill_values_through_full_recalc() {
     let before = value(&s, "Grades (2)", "J55");
     assert!(matches!(before, Value::Number(_)), "J55 should hold a spilled number, got {before:?}");
 
-    let mut fresh = s.doc().unwrap().wb.clone();
+    let mut fresh = (*s.doc().unwrap().wb).clone();
     Calc::new().recalc_all(&mut fresh);
     let after = fresh.sheet(fresh.sheet_index("Grades (2)").unwrap()).unwrap().value(CellRef::parse("J55").unwrap());
     assert_eq!(before, after);
