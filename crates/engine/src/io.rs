@@ -301,12 +301,9 @@ pub fn csv_values_bytes(wb: &Workbook) -> Result<Vec<u8>> {
     let Some(sh) = wb.sheet(wb.active_sheet()) else { return Ok(Vec::new()) };
     gridcraft_xlsx::write_csv(sh, wb.csv_delimiter.unwrap_or(b','), |c| match sh.value(c) {
         gridcraft_core::Value::Number(n) if n.is_finite() => {
-            let kind = crate::display::number_format(wb.styles.get(sh.style_id(c)).num_fmt.as_str()).kind();
-            let dt = matches!(kind, gridcraft_numfmt::FormatKind::Date | gridcraft_numfmt::FormatKind::Time)
-                .then(|| gridcraft_core::date::datetime_from_serial(wb.date_system, n))
-                .flatten();
-            match dt {
-                Some(d) => iso(&d, kind == gridcraft_numfmt::FormatKind::Time && n < 1.0, n.fract() != 0.0),
+            let shape = crate::display::number_format(wb.styles.get(sh.style_id(c)).num_fmt.as_str()).date_shape();
+            match shape.zip(gridcraft_core::date::datetime_from_serial(wb.date_system, n)) {
+                Some(((date, time), d)) => iso(&d, date, time),
                 None => n.to_string(),
             }
         }
@@ -316,16 +313,17 @@ pub fn csv_values_bytes(wb: &Workbook) -> Result<Vec<u8>> {
     .map_err(|e| EngineError::Other(e.to_string()))
 }
 
-fn iso(d: &gridcraft_core::date::DateTime, time_only: bool, with_time: bool) -> String {
-    let date = format!("{:04}-{:02}-{:02}", d.year, d.month, d.day);
-    let mut time = format!("{:02}:{:02}:{:02}", d.hour, d.minute, d.second);
+/// `date` and `time` say which parts the cell's format shows; a format with neither is not a date.
+fn iso(d: &gridcraft_core::date::DateTime, date: bool, time: bool) -> String {
+    let day = format!("{:04}-{:02}-{:02}", d.year, d.month, d.day);
+    let mut clock = format!("{:02}:{:02}:{:02}", d.hour, d.minute, d.second);
     if d.milli != 0 {
-        time.push_str(&format!(".{:03}", d.milli));
+        clock.push_str(&format!(".{:03}", d.milli));
     }
-    match (time_only, with_time) {
-        (true, _) => time,
-        (false, true) => format!("{date}T{time}"),
-        (false, false) => date,
+    match (date, time) {
+        (true, true) => format!("{day}T{clock}"),
+        (false, true) => clock,
+        _ => day,
     }
 }
 

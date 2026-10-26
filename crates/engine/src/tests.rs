@@ -2463,6 +2463,7 @@ fn saving_an_opened_semicolon_csv_keeps_semicolons() {
 /// `file.exportCsv` writes displayed text by default (Excel's Save As CSV); `values: true` writes the
 /// raw values for automation: full precision, ISO dates and times.
 #[test]
+#[cfg(not(target_arch = "wasm32"))]
 fn export_csv_values_writes_raw_values_and_the_default_stays_displayed_text() {
     let mut s = s();
     for (cell, input, code) in [
@@ -2474,6 +2475,10 @@ fn export_csv_values_writes_raw_values_and_the_default_stays_displayed_text() {
         ("F1", "TRUE", "General"),
         ("G1", "a,b", "General"),
         ("H1", "=1/0", "General"),
+        ("I1", "1", "h:mm"),
+        ("J1", "1.5", "h:mm"),
+        ("K1", "46023", "yyyy-mm-dd hh:mm"),
+        ("L1", "1.5", "[h]:mm"),
     ] {
         s.execute("cell.set", json!({"cell": cell, "input": input})).unwrap();
         s.execute("home.numberFormat", json!({"range": cell, "code": code})).unwrap();
@@ -2494,7 +2499,10 @@ fn export_csv_values_writes_raw_values_and_the_default_stays_displayed_text() {
     assert_eq!(std::fs::read(dir.join("off.csv")).unwrap(), default);
     let default = String::from_utf8(default).unwrap();
     assert!(default.starts_with("\"$1,234.50\",0.12,1-Jan-26,"), "{default}");
-    assert_eq!(std::fs::read_to_string(&raw).unwrap(), "1234.5,0.123456789,2026-01-01,2026-01-01T12:00:00,18:00:00,TRUE,\"a,b\",#DIV/0!\r\n");
+    assert_eq!(
+        std::fs::read_to_string(&raw).unwrap(),
+        "1234.5,0.123456789,2026-01-01,2026-01-01T12:00:00,18:00:00,TRUE,\"a,b\",#DIV/0!,00:00:00,12:00:00,2026-01-01T00:00:00,1.5\r\n"
+    );
     std::fs::remove_dir_all(dir).unwrap();
 }
 
