@@ -193,11 +193,11 @@ impl NumberFormat {
         self.num_sections().iter().any(|s| s.kind == SecKind::Date)
     }
 
-    /// For a date or time format, whether its first section shows calendar parts (year, month,
+    /// For a date or time format, whether the section that formats `value` shows calendar parts (year, month,
     /// day) and whether it shows time parts, as `(date, time)`. `None` for any other format and for
     /// elapsed-time codes like `[h]:mm`, whose value is a duration, not a moment.
-    pub fn date_shape(&self) -> Option<(bool, bool)> {
-        let s = self.num_sections().first().filter(|s| s.kind == SecKind::Date)?;
+    pub fn date_shape(&self, value: f64) -> Option<(bool, bool)> {
+        let s = self.select(value).map(|(s, _)| s).filter(|s| s.kind == SecKind::Date)?;
         let parts = || s.toks.iter().filter_map(|t| if let Tok::Date(d) = t { Some(*d) } else { None });
         if parts().any(|d| matches!(d, DatePart::ElapsedH(_) | DatePart::ElapsedM(_) | DatePart::ElapsedS(_))) {
             return None;

@@ -2479,6 +2479,7 @@ fn export_csv_values_writes_raw_values_and_the_default_stays_displayed_text() {
         ("J1", "1.5", "h:mm"),
         ("K1", "46023", "yyyy-mm-dd hh:mm"),
         ("L1", "1.5", "[h]:mm"),
+        ("M1", "2.5", "[>=3]yyyy-mm-dd;[<3]hh:mm"),
     ] {
         s.execute("cell.set", json!({"cell": cell, "input": input})).unwrap();
         s.execute("home.numberFormat", json!({"range": cell, "code": code})).unwrap();
@@ -2501,7 +2502,7 @@ fn export_csv_values_writes_raw_values_and_the_default_stays_displayed_text() {
     assert!(default.starts_with("\"$1,234.50\",0.12,1-Jan-26,"), "{default}");
     assert_eq!(
         std::fs::read_to_string(&raw).unwrap(),
-        "1234.5,0.123456789,2026-01-01,2026-01-01T12:00:00,18:00:00,TRUE,\"a,b\",#DIV/0!,00:00:00,12:00:00,2026-01-01T00:00:00,1.5\r\n"
+        "1234.5,0.123456789,2026-01-01,2026-01-01T12:00:00,18:00:00,TRUE,\"a,b\",#DIV/0!,00:00:00,12:00:00,2026-01-01T00:00:00,1.5,12:00:00\r\n"
     );
     std::fs::remove_dir_all(dir).unwrap();
 }
