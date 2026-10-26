@@ -272,7 +272,7 @@ fn a_strip_icon_opens_its_pane_and_the_header_button_folds_it_again() {
         assert_eq!(grid(&h), folded);
     }
     // Comments is engine state: its icon turns it on.
-    h.get_by_label("Comments").click();
+    h.get_by_role_and_label(egui::accesskit::Role::Button, "Comments").click();
     h.run_steps(3);
     assert!(h.state().session.comments_pane);
     assert_eq!(panes(&mut h)["right_dock_collapsed"], false);

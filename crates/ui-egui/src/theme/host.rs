@@ -129,5 +129,13 @@ fn assign(t: &mut Tokens, key: &str, color: Color32) -> bool {
         error_check_green,
         warning_fill,
         warning_ink,
+        on_accent,
+        paper,
+        warning,
+        on_warning,
+        sheet_control_bg,
+        sheet_control_border,
+        sheet_control_text,
+        sheet_track,
     )
 }
