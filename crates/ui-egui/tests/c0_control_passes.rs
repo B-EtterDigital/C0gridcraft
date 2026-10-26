@@ -76,13 +76,13 @@ fn dirty_open_cancel_keeps_the_original_and_dont_save_finishes_replacement() {
     assert_eq!(request(&mut h, &tx, "c0.openFile", params.clone()), json!({"pending":true}));
     assert_eq!(h.state().session.active().unwrap().uid, uid);
     h.run_steps(3);
-    h.get_by_label("Cancel").click();
+    h.get_by_role_and_label(egui::accesskit::Role::Button, "Cancel").click();
     h.run_steps(3);
     assert_eq!(h.state().session.active().unwrap().uid, uid);
     assert_eq!(request(&mut h, &tx, "cell.get", json!({"cell":"A1"}))["value"], "Keep me");
     assert_eq!(request(&mut h, &tx, "c0.openFile", params), json!({"pending":true}));
     h.run_steps(3);
-    h.get_by_label("Don't Save").click();
+    h.get_by_role_and_label(egui::accesskit::Role::Button, "Don't Save").click();
     h.run_steps(4);
     assert_ne!(h.state().session.active().unwrap().uid, uid);
     assert_eq!(h.state().session.documents().len(), 1);
@@ -101,7 +101,7 @@ fn dirty_new_document_uses_the_same_cancel_and_discard_prompt() {
     assert_eq!(h.state().session.active().unwrap().uid, uid);
     request(&mut h, &tx, "c0.newDocument", json!({}));
     h.run_steps(3);
-    h.get_by_label("Don't Save").click();
+    h.get_by_role_and_label(egui::accesskit::Role::Button, "Don't Save").click();
     h.run_steps(4);
     assert_ne!(h.state().session.active().unwrap().uid, uid);
     assert!(!h.state().session.active().unwrap().is_dirty());
@@ -116,7 +116,7 @@ fn existing_file_can_be_saved_before_the_replacement_continues() {
     h.state_mut().session.active_mut().unwrap().path = Some(path.to_string_lossy().into_owned());
     request(&mut h, &tx, "c0.newDocument", json!({}));
     h.run_steps(3);
-    h.get_by_label("Save").click();
+    h.get_by_role_and_label(egui::accesskit::Role::Button, "Save").click();
     h.run_steps(4);
     let (saved, _) = io::open_bytes("saved.xlsx", &std::fs::read(&path).unwrap()).unwrap();
     assert_eq!(saved.active().unwrap().value(gridcraft_engine::core::CellRef::default()), gridcraft_engine::core::Value::Number(42.0));
