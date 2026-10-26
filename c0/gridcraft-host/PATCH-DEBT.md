@@ -11,7 +11,7 @@ modified upstream file: replacement lines, indentation, tests and dependency boo
 | `Cargo.lock` | 1 | UI crate's js-sys dependency edge | Browser wall clock for the wasm bug fix | Yes, with clock fix |
 | `apps/gridcraft-web/Cargo.toml` | 4 | Opt-in feature with rfd/file-handle-inner (3 lines) and browser Event/EventTarget/File features (1 replacement) | Compile native feature tests and the browser pass/picker transport | Not yet (embedding seam) |
 | `apps/gridcraft-web/src/main.rs` | 2 | Feature-gated page-control module | Ordinary browser builds expose no page function | Not yet (embedding seam) |
-| `apps/gridcraft-web/src/web.rs` | 6 | Retain/lend WebRunner (4), attach app transport (2) | Run the same app and real control queue without presentation | Not yet (embedding seam) |
+| `apps/gridcraft-web/src/web.rs` | 7 | Retain/lend WebRunner (4), attach app transport (2); `..Default::default()` in upstream's `?chrome=none` initializer (1 replaced, 2026-10-26), since our `Chrome` has more fields | Run the same app and real control queue without presentation; keep upstream's chrome query compiling | Not yet (embedding seam); the initializer line yes, as is (upstream's own tests write it so) |
 | `crates/ui-egui/Cargo.toml` | 1 | wasm-only js-sys | Browser wall clock for the wasm bug fix | Yes, with clock fix |
 | `crates/ui-egui/src/control.rs` | 2 | Single c0-family arm, which also routes ui.render (1), route ui.dialog through run (1 replacement) | Host contract, frameless render and uniform programmatic Agent Control refusal | Not yet (embedding seam) |
 | `crates/ui-egui/src/dialogs.rs` | 4 | Guard native Agent Control (1), pass community switch (2 replacements), About helper (1 replacement) | Hide promotional content and agent entry while retaining the existing dialog structure | Not yet (host chrome) |
@@ -24,8 +24,8 @@ modified upstream file: replacement lines, indentation, tests and dependency boo
 | `crates/ui-egui/src/widgets.rs` | 3 | Compact-ribbon hook at the top of `big_button` | toolbar_double turns big buttons into icon buttons | Not yet (host chrome) |
 | `crates/ui-egui/tests/host_chrome.rs` | 2 | Default-fill two existing Chrome literals | Retain original assertions after extending the host description | With Chrome extension |
 
-Total: 47 added lines in 15 modified upstream files, including replacements.
-Ratchet: 47 (upstream took the wasm clock fix on 2026-10-25)
+Total: 48 added lines in 15 modified upstream files, including replacements.
+Ratchet: 48 (upstream took the wasm clock fix on 2026-10-25; +1 for upstream's `?chrome=none` initializer on 2026-10-26)
 
 ## New files: no upstream patch debt
 
