@@ -718,7 +718,7 @@ const HALF_PI_EXCESS: f64 = 2.508_278_806_33e-20;
 im1!(imsqrt, |z: Cx| {
     let im = z.im + 0.0;
     let theta = match z.re {
-        x if x == 0.0 => {
+        0.0 => {
             if im == 0.0 {
                 0.0
             } else {
