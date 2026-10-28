@@ -83,10 +83,9 @@ fn input(value: Option<&Value>, formula: Option<&Value>) -> Result<Option<String
 fn grid(params: &Value, key: &str) -> Result<Vec<Vec<Value>>, String> {
     match params.get(key) {
         None | Some(Value::Null) => Ok(Vec::new()),
-        Some(Value::Array(rows)) => rows
-            .iter()
-            .map(|row| row.as_array().cloned().ok_or_else(|| format!("{key} must be an array of rows (arrays)")))
-            .collect(),
+        Some(Value::Array(rows)) => {
+            rows.iter().map(|row| row.as_array().cloned().ok_or_else(|| format!("{key} must be an array of rows (arrays)"))).collect()
+        }
         Some(_) => Err(format!("{key} must be an array of rows (arrays)")),
     }
 }
@@ -127,7 +126,9 @@ pub(super) fn place(app: &mut SheetApp, params: &Value) -> Result<Value, String>
         for c in 0..width {
             let value = values.get(r).and_then(|row| row.get(c));
             let formula = formulas.get(r).and_then(|row| row.get(c));
-            if let Some(text) = input(value, formula).map_err(|e| format!("{} {e}", at.offset(r as i64, c as i64).map(|x| x.a1()).unwrap_or_default()))? {
+            if let Some(text) =
+                input(value, formula).map_err(|e| format!("{} {e}", at.offset(r as i64, c as i64).map(|x| x.a1()).unwrap_or_default()))?
+            {
                 writes.push((at.offset(r as i64, c as i64).ok_or("the block does not fit on the sheet")?.a1(), text));
             }
         }

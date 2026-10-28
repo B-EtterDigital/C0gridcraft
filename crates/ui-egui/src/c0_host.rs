@@ -18,7 +18,8 @@ use crate::{SheetApp, control::Outcome};
 /// Transport limits, shared by the page picker and the native contract.
 pub const MAX_FILE_BYTES: usize = 72 * 1024 * 1024;
 pub const MAX_REQUEST_BYTES: usize = 100 * 1024 * 1024;
-pub const METHODS: &[&str] = &["c0.inspect", "c0.goTo", "c0.documentBytes", "c0.openFile", "c0.newDocument", "c0.cancelFileDialog", "c0.set", "c0.selection", "c0.place"];
+pub const METHODS: &[&str] =
+    &["c0.inspect", "c0.goTo", "c0.documentBytes", "c0.openFile", "c0.newDocument", "c0.cancelFileDialog", "c0.set", "c0.selection", "c0.place"];
 
 pub fn handle(app: &mut SheetApp, ctx: &egui::Context, method: &str, params: &Value) -> Outcome {
     let result = dispatch(app, ctx, method, params);

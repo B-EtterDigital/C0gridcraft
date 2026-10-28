@@ -375,7 +375,12 @@ fn place_writes_a_block_as_one_undo_step_and_marks_dirty() {
     let d = app.session.active_mut().unwrap();
     d.saved = d.wb.clone();
     let steps = d.undo.len();
-    let r = ok(&mut app, &ctx, "c0.place", json!({"cells": {"at": "B2", "values": [["a", 5], ["7", null]], "formulas": [[null, null], [null, "=C2*2"]]}}));
+    let r = ok(
+        &mut app,
+        &ctx,
+        "c0.place",
+        json!({"cells": {"at": "B2", "values": [["a", 5], ["7", null]], "formulas": [[null, null], [null, "=C2*2"]]}}),
+    );
     assert_eq!(r["placed"], "B2:C3");
     assert_eq!(r["cells"], 4);
     assert_eq!(r["formulas"], 1);
