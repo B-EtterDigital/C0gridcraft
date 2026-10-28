@@ -1,6 +1,6 @@
 # Function parity: worksheet functions and formulas
 
-> **Last reviewed:** 2026-10-15 · **Last updated:** 2026-10-25 · **Change:** minor (the LAMBDA row lists the recursion limit and its `#NUM!`, and the error a defined name holding an error gives when called; earlier: number text with accounting parentheses coerces like Excel 365; INDEX with one index on a 2-D reference is #REF! as in Excel; earlier: SUBTOTAL and AGGREGATE cap the cells they visit, #2175) · **Target:** Microsoft Excel (Microsoft 365), Excel for Mac 16.113.4
+> **Last reviewed:** 2026-10-15 · **Last updated:** 2026-10-27 · **Change:** minor (ECMA.CEILING listed with USDOLLAR as not on Microsoft's list; earlier: the LAMBDA row lists the recursion limit and its `#NUM!`, and the error a defined name holding an error gives when called; earlier: number text with accounting parentheses coerces like Excel 365; INDEX with one index on a 2-D reference is #REF! as in Excel; earlier: SUBTOTAL and AGGREGATE cap the cells they visit, #2175) · **Target:** Microsoft Excel (Microsoft 365), Excel for Mac 16.113.4
 
 Excel's worksheet functions, category by category, against GridCraft's function library. Part of
 [target-app-parity.md](target-app-parity.md); gaps feed [gaps.md](gaps.md).
@@ -20,8 +20,8 @@ Excel's worksheet functions, category by category, against GridCraft's function 
   evaluator's special forms in `crates/calc/src/eval.rs` (`SPECIAL_FUNCTIONS`: IF, IFS, CHOOSE,
   OFFSET, INDIRECT, INDEX, SUBTOTAL, AGGREGATE, TEXT, LET, LAMBDA, MAP, REDUCE, SCAN, BYROW, BYCOL,
   MAKEARRAY…), excluding the test-only `ADD2`. Every one is an Excel name.
-- **Not on Microsoft's list:** USDOLLAR, a legacy function Excel still evaluates (like DOLLAR),
-  is in our library as a Compatibility function for files that use it. It is not counted above.
+- **Not on Microsoft's list:** USDOLLAR and ECMA.CEILING, legacy functions Excel still evaluates (like DOLLAR),
+  are in our library as Compatibility functions for files that use them. They are not counted above.
 - **Working** excludes stubs that return an error by design: the 7 CUBE functions (`#N/A`, no
   cube connections) and WEBSERVICE and FILTERXML (`#VALUE!`). Excel for Mac also lacks
   WEBSERVICE and FILTERXML; Excel for Windows has them.
@@ -33,6 +33,7 @@ Excel's worksheet functions, category by category, against GridCraft's function 
 
 | Category | Excel | Ours | Working | % working | Missing |
 |---|---|---|---|---|---|
+| 2026-10-27 | minor | ECMA.CEILING added to the functions that are in our library but not on Microsoft's list (with USDOLLAR), so the counts don't change |
 | Statistical | 111 | 111 | 111 | 100% | — |
 | Math and trigonometry | 80 | 79 | 79 | 99% | PERCENTOF |
 | Financial | 55 | 55 | 55 | 100% | — |
