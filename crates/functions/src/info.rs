@@ -608,9 +608,9 @@ mod tests {
         // Excel 16: without a friendly name the result is the link as text.
         is_text(ev("HYPERLINK", vec![n(1.0)]), "1");
         is_text(ev("HYPERLINK", vec![n(1.5)]), "1.5");
-        is_text(ev("HYPERLINK", vec![Value::Bool(true)]), "TRUE");
-        is_text(ev("HYPERLINK", vec![Value::Empty]), "");
-        is_err(ev("HYPERLINK", vec![Value::Error(CellError::Div0)]), CellError::Div0);
+        is_text(ev("HYPERLINK", vec![b(true)]), "TRUE");
+        is_text(ev("HYPERLINK", vec![rf(Value::Empty)]), "");
+        is_err(ev("HYPERLINK", vec![e(CellError::Div0)]), CellError::Div0);
         is_text(ev("ENCODEURL", vec![t("a b&c/é")]), "a%20b%26c%2F%C3%A9");
         is_err(ev("WEBSERVICE", vec![t("http://x")]), CellError::Value);
         is_err(ev("FILTERXML", vec![t("<a/>"), t("//a")]), CellError::Value);
