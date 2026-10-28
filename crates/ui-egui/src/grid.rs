@@ -41,7 +41,7 @@ pub(crate) use quadrant::paint_quadrant;
 pub(crate) use selection::paint_selection;
 pub use selection::selection_fill;
 pub(crate) use show::horizontal_scrollbar;
-pub(crate) use show::paint_panes;
+pub(crate) use show::{paint_headers, paint_panes};
 pub use show::show;
 #[cfg(test)]
 use tables::filter_table_range;

@@ -133,7 +133,7 @@ pub(super) fn place(app: &mut SheetApp, params: &Value) -> Result<Value, String>
         }
     }
     super::commit_edit(app)?;
-    let sheet = app.session.active().ok_or("no workbook open")?.wb.active_sheet;
+    let sheet = app.session.active().ok_or("no workbook open")?.wb.active_sheet.get();
     let name = app.session.active().and_then(|d| d.wb.sheet(sheet).map(|s| s.name.clone())).unwrap_or_default();
     let formula_count = writes.iter().filter(|(_, t)| t.starts_with('=')).count();
     app.session

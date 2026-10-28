@@ -20,7 +20,7 @@ const MAX_PIXELS: f32 = 12_000_000.0;
 fn sheet_index(app: &SheetApp, params: &Value) -> Result<usize, String> {
     let wb = &app.session.active().ok_or("no workbook open")?.wb;
     let index = match params.get("sheet") {
-        None | Some(Value::Null) => wb.active_sheet,
+        None | Some(Value::Null) => wb.active_sheet.get(),
         Some(Value::String(name)) => wb.sheet_index(name).ok_or("no sheet with that name")?,
         Some(value) => value.as_u64().and_then(|i| usize::try_from(i).ok()).ok_or("sheet must be a name or zero-based index")?,
     };
@@ -53,7 +53,7 @@ pub(super) fn render(app: &SheetApp, ctx: &egui::Context, params: &Value) -> Res
         return Err("render exceeds 12 million pixels; lower the scale".into());
     }
     let scroll = app.views.get(&(d.uid, si)).map(|v| v.scroll).unwrap_or_default().max(egui::Vec2::ZERO);
-    let sel = if si == wb.active_sheet {
+    let sel = if si == wb.active_sheet.get() {
         d.selection.clone()
     } else {
         d.sheet_selections.get(si).cloned().unwrap_or_else(|| Selection::at(sh.view_active))

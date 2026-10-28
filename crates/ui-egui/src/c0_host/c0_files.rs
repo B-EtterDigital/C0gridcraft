@@ -21,7 +21,7 @@ struct Replacement {
 }
 
 fn replacement_id() -> egui::Id {
-    egui::Id::new("gridcraft-host-replacement")
+    egui::Id::unique("gridcraft-host-replacement")
 }
 
 pub(super) fn document_bytes(app: &SheetApp, params: &Value) -> Result<Value, String> {
@@ -142,7 +142,7 @@ pub fn poll(app: &mut SheetApp, ctx: &egui::Context) {
 }
 
 fn picker_id() -> egui::Id {
-    egui::Id::new("gridcraft-host-open-picker")
+    egui::Id::unique("gridcraft-host-open-picker")
 }
 
 /// A cancellation flag shared with the browser chooser, so late answers become inert.

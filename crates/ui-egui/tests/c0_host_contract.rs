@@ -98,7 +98,7 @@ fn go_to_activates_selects_and_requests_reveal_without_dirtying() {
     assert_eq!(result["dirty"], false);
     assert!(app.grid.ensure_visible);
     ok(&mut app, &ctx, "c0.goTo", json!({"sheet":1}));
-    assert_eq!(app.session.active().unwrap().wb.active_sheet, 1);
+    assert_eq!(app.session.active().unwrap().wb.active_sheet.get(), 1);
     ok(&mut app, &ctx, "c0.goTo", json!({}));
 }
 
@@ -118,7 +118,7 @@ fn bad_navigation_is_atomic_and_bounded() {
         let result = reply(&mut app, &ctx, "c0.goTo", params);
         assert_eq!(result["ok"], false, "{result}");
         assert!(result["error"].is_string());
-        assert_eq!(app.session.active().unwrap().wb.active_sheet, 1);
+        assert_eq!(app.session.active().unwrap().wb.active_sheet.get(), 1);
     }
 }
 

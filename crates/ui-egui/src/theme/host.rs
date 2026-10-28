@@ -21,7 +21,7 @@ impl Report {
 }
 
 fn store() -> egui::Id {
-    egui::Id::new("gridcraft-host-palette")
+    egui::Id::unique("gridcraft-host-palette")
 }
 
 /// Replace the override set. Null or an empty object clears it; valid siblings still apply.

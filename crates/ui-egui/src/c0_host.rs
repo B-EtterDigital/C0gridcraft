@@ -57,9 +57,9 @@ fn inspect(app: &SheetApp) -> Result<Value, String> {
     Ok(json!({
         "title": d.display_title(), "dirty": d.is_dirty(), "revision": d.revision,
         "sheets": wb.sheets.iter().enumerate().map(|(i, sh)| json!({
-            "name": sh.name, "active": i == wb.active_sheet, "hidden": sh.visibility != Visibility::Visible,
+            "name": sh.name, "active": i == wb.active_sheet.get(), "hidden": sh.visibility != Visibility::Visible,
         })).collect::<Vec<_>>(),
-        "activeSheet": wb.active_sheet, "activeCell": d.selection.active.a1(), "selection": d.selection.a1(),
+        "activeSheet": wb.active_sheet.get(), "activeCell": d.selection.active.a1(), "selection": d.selection.a1(),
         "names": wb.names.iter().map(|n| json!({"name": n.name, "ref": format!("={}", n.formula)})).collect::<Vec<_>>(),
         "tables": wb.sheets.iter().flat_map(|sh| sh.tables.iter().map(|t| json!({
             "name": t.name, "sheet": sh.name, "ref": t.range.a1(),
@@ -77,7 +77,7 @@ fn inspect(app: &SheetApp) -> Result<Value, String> {
 fn go_to(app: &mut SheetApp, params: &Value) -> Result<Value, String> {
     let d = app.session.active().ok_or("no workbook open")?;
     let sheet = match params.get("sheet") {
-        None => d.wb.active_sheet,
+        None => d.wb.active_sheet.get(),
         Some(Value::String(name)) => d.wb.sheet_index(name).ok_or("no sheet with that name")?,
         Some(value) => value.as_u64().and_then(|i| usize::try_from(i).ok()).ok_or("sheet must be a name or zero-based index")?,
     };

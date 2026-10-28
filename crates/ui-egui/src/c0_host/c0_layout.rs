@@ -51,7 +51,7 @@ const MAX_WIDTH: f32 = 980.0;
 const TABS: f32 = 34.0;
 
 fn compact_id() -> Id {
-    Id::new("c0-ribbon-compact")
+    Id::unique("c0-ribbon-compact")
 }
 
 fn compact(ctx: &egui::Context) -> bool {
@@ -79,7 +79,7 @@ pub(crate) fn compact_button(ui: &mut Ui, icon: crate::icons::Icon, label: &str,
         crate::icons::paint(ui.painter(), Rect::from_center_size(at, vec2(10.0, 10.0)), crate::icons::Icon::Chevron, t.text_dim);
     }
     let name = label.replace('\n', " ");
-    resp.widget_info(|| egui::WidgetInfo::labeled(egui::WidgetType::Button, true, &name));
+    resp.widget_info(|| egui::WidgetInfo::labeled(egui::Role::Button, true, &name));
     Some(resp.on_hover_text(crate::i18n::current(ui.ctx()).tr(tip)))
 }
 
@@ -118,11 +118,11 @@ fn float(app: &mut SheetApp, ui: &mut Ui) {
         color: t.shadow,
     });
     let mut moved = vec2(0.0, 0.0);
-    egui::Area::new(Id::new("c0-floating-ribbon")).order(Order::Foreground).fixed_pos(at).show(ui.ctx(), |ui| {
+    egui::Area::new(Id::unique("c0-floating-ribbon")).order(Order::Foreground).fixed_pos(at).show(ui.ctx(), |ui| {
         frame.show(ui, |ui| {
             ui.set_width(width);
             let (rect, grip) = ui.allocate_exact_size(vec2(width, GRIP), Sense::drag());
-            grip.widget_info(|| egui::WidgetInfo::labeled(egui::WidgetType::Button, true, "Move Toolbar"));
+            grip.widget_info(|| egui::WidgetInfo::labeled(egui::Role::Button, true, "Move Toolbar"));
             let tone = if grip.hovered() || grip.dragged() { t.text } else { t.text_dim };
             ui.painter().rect_filled(Rect::from_center_size(rect.center(), vec2(36.0, 4.0)), 2.0, tone);
             moved = grip.drag_delta();
@@ -168,21 +168,21 @@ pub(crate) fn dock_open(app: &mut SheetApp, ui: &mut Ui) -> bool {
             ui.vertical_centered(|ui| {
                 ui.spacing_mut().item_spacing.y = 4.0;
                 let expand = crate::widgets::icon_button(ui, crate::icons::Icon::Left, t.text_dim, "Expand panels", vec2(26.0, 26.0));
-                expand.widget_info(|| egui::WidgetInfo::labeled(egui::WidgetType::Button, true, "Expand panels"));
+                expand.widget_info(|| egui::WidgetInfo::labeled(egui::Role::Button, true, "Expand panels"));
                 if expand.clicked() {
                     chosen = Some(None);
                 }
                 for (name, icon, label) in DOCK_PANES {
                     let on = open.as_deref() == Some(name);
                     let resp = crate::widgets::toggle_button(ui, icon, on, label);
-                    resp.widget_info(|| egui::WidgetInfo::labeled(egui::WidgetType::Button, true, label));
+                    resp.widget_info(|| egui::WidgetInfo::labeled(egui::Role::Button, true, label));
                     if resp.clicked() {
                         chosen = Some(Some(name));
                     }
                 }
                 if pivot {
                     let resp = crate::widgets::toggle_button(ui, crate::icons::Icon::PivotTable, true, "PivotTable Fields");
-                    resp.widget_info(|| egui::WidgetInfo::labeled(egui::WidgetType::Button, true, "PivotTable Fields"));
+                    resp.widget_info(|| egui::WidgetInfo::labeled(egui::Role::Button, true, "PivotTable Fields"));
                     if resp.clicked() {
                         chosen = Some(None);
                     }
@@ -204,7 +204,7 @@ pub(crate) fn dock_open(app: &mut SheetApp, ui: &mut Ui) -> bool {
 pub(crate) fn fold_button(app: &mut SheetApp, ui: &mut Ui) {
     let color: Color32 = Tokens::get(ui.ctx()).text_dim;
     let fold = crate::widgets::icon_button(ui, crate::icons::Icon::Right, color, "Fold panels", vec2(22.0, 22.0));
-    fold.widget_info(|| egui::WidgetInfo::labeled(egui::WidgetType::Button, true, "Fold panels"));
+    fold.widget_info(|| egui::WidgetInfo::labeled(egui::Role::Button, true, "Fold panels"));
     if fold.clicked() {
         app.chrome.layout.right_dock_collapsed = true;
     }
