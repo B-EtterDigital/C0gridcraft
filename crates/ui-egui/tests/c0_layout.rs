@@ -188,7 +188,7 @@ fn floating_lifts_the_ribbon_off_the_dock_and_it_stays_inside_the_canvas() {
     assert_eq!(full - grid(&h).top(), FULL_RIBBON);
     assert!(h.query_by_label("Move Toolbar").is_some());
     assert!(drawn_text(&h).lines().any(|l| l == "Home"));
-    let id = egui::Id::new("c0-floating-ribbon");
+    let id = egui::Id::unique("c0-floating-ribbon");
     let screen = egui::Rect::from_min_size(egui::Pos2::ZERO, egui::vec2(1200.0, 800.0));
     for at in [None, Some((-500, -500)), Some((9000, 9000))] {
         h.state_mut().chrome.layout.float_at = at;
@@ -272,7 +272,7 @@ fn a_strip_icon_opens_its_pane_and_the_header_button_folds_it_again() {
         assert_eq!(grid(&h), folded);
     }
     // Comments is engine state: its icon turns it on.
-    h.get_by_label("Comments").click();
+    h.get_by_role_and_label(egui::accesskit::Role::Button, "Comments").click();
     h.run_steps(3);
     assert!(h.state().session.comments_pane);
     assert_eq!(panes(&mut h)["right_dock_collapsed"], false);
