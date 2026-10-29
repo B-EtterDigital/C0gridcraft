@@ -356,6 +356,16 @@ fn ctrl_arrows_in_point_mode_jump_to_the_edge_of_the_data() {
     h.input_mut().events.push(Event::ModifiersChanged(Modifiers::NONE));
     key(&mut h, Key::ArrowUp, Modifiers::NONE);
     assert_eq!(edited(&h).as_deref(), Some("=COUNTIF(B4"), "a plain arrow still moves one cell");
+    // An automation tool (osascript `key code`) presses and releases within one frame, so by the
+    // time the frame runs `i.modifiers` is already empty: the modifiers that count are the ones on
+    // the press event.
+    h.input_mut().events.extend([
+        Event::Key { key: Key::ArrowUp, physical_key: None, pressed: true, repeat: false, modifiers: Modifiers::COMMAND },
+        Event::ModifiersChanged(Modifiers::NONE),
+        Event::Key { key: Key::ArrowUp, physical_key: None, pressed: false, repeat: false, modifiers: Modifiers::NONE },
+    ]);
+    h.run_steps(2);
+    assert_eq!(edited(&h).as_deref(), Some("=COUNTIF(B1"), "Command released in the same frame as the press still jumps");
 }
 
 #[test]
