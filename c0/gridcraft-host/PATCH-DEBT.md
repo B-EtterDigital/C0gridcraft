@@ -24,7 +24,7 @@ upstream's own `clock.rs` now provides the monotonic clock. Net: 47 lines again,
 | `crates/ui-egui/src/dialogs/about.rs` | 2 | `community_links` parameter (1), About body replaced by `c0_host::about` (1 replacement; the three promotional lines are removed) | Hide promotional content while keeping the existing dialog structure | Not yet (host chrome) |
 | `crates/ui-egui/src/dialogs/show.rs` | 1 | Passes `app.chrome.community_links` to `about` | Same switch as above | Not yet (host chrome) |
 | `crates/ui-egui/src/grid.rs` | 1 | Re-exports `paint_headers` and `paint_panes` (`pub(crate) use show::{…}`) | `c0_render` draws with the app's own painter; `show` is a private module | Yes, as is |
-| `crates/ui-egui/src/grid/show.rs` | 1 | `paint_panes` made `pub(crate)` | Frameless ui.render draws the visible grid with the app's own painter | Yes, as is |
+| `crates/ui-egui/src/grid/show.rs` | 1 | Declares `c0_panes`, which keeps `paint_panes`' old argument list for the host (upstream bundled them into a private `PanesInput` on 20261030) | Frameless ui.render draws the visible grid with the app's own painter | Yes, as is |
 | `crates/ui-egui/src/lib.rs` | 1 | Register module `pub mod c0_host` | Host contract module | Not yet (embedding seam) |
 | `crates/ui-egui/src/panes.rs` | 2 | Folded-dock early return (1), fold button in the pane header (1) | right_dock_collapsed | Not yet (host chrome) |
 | `crates/ui-egui/src/pivot_pane.rs` | 1 | Folded dock hides the PivotTable pane (1 replacement) | right_dock_collapsed | Not yet (host chrome) |
