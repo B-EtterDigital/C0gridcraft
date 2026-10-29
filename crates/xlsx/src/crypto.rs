@@ -454,6 +454,8 @@ fn agile_descriptor(xml: &[u8]) -> Result<AgileDescriptor, DecryptError> {
     })
 }
 
+/// Decrypts an Agile package ([MS-OFFCRYPTO] 2.3.4.10): checks the password against the
+/// verifier, unwraps the package key, verifies the dataIntegrity HMAC, then decrypts the segments.
 fn agile(xml: &[u8], package: &[u8], password: &str) -> Result<Vec<u8>, DecryptError> {
     let descriptor = agile_descriptor(xml)?;
     let AgileDescriptor { key_data, key, spin, verifier_input, verifier_hash, key_value, hmac_key, hmac_value } = descriptor;
