@@ -137,5 +137,11 @@ fn assign(t: &mut Tokens, key: &str, color: Color32) -> bool {
         sheet_control_border,
         sheet_control_text,
         sheet_track,
+        recording,
+        breakpoint,
+        sheet_macro_input,
+        sheet_macro_footprint,
+        sheet_macro_conflict,
+        sheet_macro_target,
     )
 }
