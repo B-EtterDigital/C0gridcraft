@@ -90,6 +90,12 @@ fn assign(t: &mut Tokens, key: &str, color: Color32) -> bool {
         };
     }
     colors!(
+        badge_py,
+        on_badge,
+        sheet_py_tag,
+        on_sheet_py_tag,
+        sheet_trace_arrow,
+        sheet_trace_error,
         window,
         ribbon,
         ribbon_border,
