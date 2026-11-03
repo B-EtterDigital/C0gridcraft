@@ -90,6 +90,7 @@ fn assign(t: &mut Tokens, key: &str, color: Color32) -> bool {
         };
     }
     colors!(
+        active_row,
         badge_py,
         on_badge,
         sheet_py_tag,
