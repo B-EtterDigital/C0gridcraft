@@ -52,7 +52,7 @@ pub(super) fn render(app: &SheetApp, ctx: &egui::Context, params: &Value) -> Res
     if width * height > MAX_PIXELS {
         return Err("render exceeds 12 million pixels; lower the scale".into());
     }
-    let scroll = app.views.get(&(d.uid, si)).map(|v| v.scroll).unwrap_or_default().max(egui::Vec2::ZERO);
+    let scroll = app.session.active_window().and_then(|w| app.views.get(&(w, sh.uid.get()))).map(|v| v.scroll).unwrap_or_default().max(egui::Vec2::ZERO);
     let sel = if si == wb.active_sheet.get() {
         d.selection.clone()
     } else {
