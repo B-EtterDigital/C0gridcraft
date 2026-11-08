@@ -16,7 +16,7 @@ upstream's own `clock.rs` now provides the monotonic clock. Net: 47 lines again,
 |---|---:|---|---|---|
 | `apps/gridcraft-web/Cargo.toml` | 4 | Opt-in feature with rfd/file-handle-inner (3 lines) and browser Event/EventTarget/File features (1 replacement) | Compile native feature tests and the browser pass/picker transport | Not yet (embedding seam) |
 | `apps/gridcraft-web/src/main.rs` | 2 | Feature-gated page-control module | Ordinary browser builds expose no page function | Not yet (embedding seam) |
-| `apps/gridcraft-web/src/web.rs` | 7 | Retain/lend WebRunner (4), attach app transport (2), `..Default::default()` on the `Chrome` literal (1, forced by the new Chrome fields) | Run the same app and real control queue without presentation | Not yet (embedding seam) |
+| `apps/gridcraft-web/src/web.rs` | 8 | Retain/lend WebRunner (4), attach app transport (2), `..Default::default()` on the `Chrome` literal (1, forced by the new Chrome fields), upstream's `api::install` only without `page-control` (1, 2026-11-09: both set `control_rx`; ours owns it in the hosted build) | Run the same app and real control queue without presentation | Not yet (embedding seam) |
 | `crates/ui-egui/src/app.rs` | 2 | c0 poll after `control::poll` (1), ribbon call site replaced by `c0_host::ribbon` (1 replacement) | Host poll and toolbar layout run in the same frame order as before | Not yet (embedding seam) |
 | `crates/ui-egui/src/app/commands.rs` | 1 | `c0_host::check_command` guard at the top of `run_command` | Uniform programmatic Agent Control refusal | Not yet (embedding seam) |
 | `crates/ui-egui/src/control.rs` | 2 | Single c0-family arm, which also routes ui.render (1), route ui.dialog through run (1 replacement) | Host contract, frameless render and uniform programmatic Agent Control refusal | Not yet (embedding seam) |
@@ -41,7 +41,7 @@ Proof: no `js_sys` use remains in `crates/ui-egui`; `cargo check --target wasm32
 `gridcraft-web` with and without `page-control`.
 
 Total: 47 added lines in 20 modified upstream files, including replacements.
-Ratchet: 47 (unchanged across the 2026-10-28 pull; the +1 in `web.rs` is forced by the new `Chrome` fields and is
+Ratchet: 48 (unchanged across the 2026-10-28 pull; the +1 in `web.rs` is forced by the new `Chrome` fields and is
 offset by the −2 from the removed `js-sys` edge).
 
 ## New files: no upstream patch debt
