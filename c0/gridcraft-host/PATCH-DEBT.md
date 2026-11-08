@@ -66,7 +66,7 @@ offset by the −2 from the removed `js-sys` edge).
 | `c0_host/c0_layout.rs` | Upstream's ribbon draws big buttons through `widgets::big_button` and its panel as `Panel::top("ribbon")` at 34 + 92 pt; panes live in `panes::show`; the grid area is `app.grid.rect` | Layout tests: card height, compact width, floating bounds, fold/unfold |
 | `c0_host/c0_render.rs`, `c0_raster.rs` | `grid::paint_panes`, `paint_headers`, `chartview::paint_objects` and `outline::paint` signatures; egui tessellation and texture deltas | Render tests: pixel assertions on cells, headings and gridlines at two scales |
 | Chrome switches | About is the sole in-app ArtCraft/getartcraft/Discord promotional render site. Upstream also added two promotional items to the desktop Help menu (`apps/gridcraft/src/native_menu.rs`); the web host does not build that menu, so they are not hidden by the switch | Source grep plus rendered About/Automate tests and command refusal tests |
-| `theme/host.rs` | Every scalar Color32 token of `Tokens` must be in the `colors!` registry (upstream added eight on 2026-10-28); theme::apply derives both widget palettes | Complete field registry test (`c0_theme`), clear/default/system tests and light/dark persistence |
+| `theme/host.rs` | Every scalar Color32 token of `Tokens` must be in the `colors!` registry (upstream added eight on 2026-10-28 and five sheet control tokens on 2026-11-07); theme::apply derives both widget palettes | Complete field registry test (`c0_theme`), clear/default/system tests and light/dark persistence |
 
 The existing `?host=parent` bridge and upstream `dist/web` configuration are unchanged. Browser
 Save's asynchronous lifecycle is documented in README; the host never force-discards dirty work
