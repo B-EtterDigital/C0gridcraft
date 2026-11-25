@@ -15,8 +15,11 @@ pub(super) fn about(ui: &mut egui::Ui, d: &mut Dialog, community_links: bool) {
         "Contributors" => crate::credits::contributors_ui(ui),
         "Models" => crate::credits::models_ui(ui),
         _ => {
-            ui.heading("GridCraft");
-            ui.label(format!("Version {}", env!("CARGO_PKG_VERSION")));
+            ui.heading(crate::channel::name());
+            ui.label(format!("Version {}", crate::channel::version()));
+            if let Some(commit) = crate::channel::commit() {
+                ui.label(egui::RichText::new(format!("Built from {commit}")).small());
+            }
             ui.add_space(4.0);
             crate::c0_host::about(ui, community_links);
         }
