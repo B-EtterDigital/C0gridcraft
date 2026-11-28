@@ -31,3 +31,4 @@ jobs:
       # One producer run builds every listed platform for one all-or-nothing release. The pin is the
       # craft-common-actions main commit that merged 8389cad8 (#375, the signer Windows fix).
       platforms: '["windows-x86_64","linux-x86_64","macos-aarch64"]'
+      linux-package-formats: '["deb","rpm","appimage","flatpak","oci","arch"]'
