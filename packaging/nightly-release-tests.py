@@ -171,7 +171,7 @@ def reviewed_manual_actors(caller_source, policy):
 
 
 def caller_pin(name):
-    return re.findall(r"(?m)^      tooling-revision: ([0-9a-f]{40})$", (ROOT / ".github/workflows" / name).read_text())[0]
+    return re.findall(r"(?m)^      tooling-revision: (\S+)$", (ROOT / ".github/workflows" / name).read_text())[0]
 
 
 class TrustedSourcePreparation(unittest.TestCase):
@@ -309,7 +309,7 @@ class TrustedSourcePreparation(unittest.TestCase):
                 self.assertEqual(tooling, uses, "the defining workflow SHA and tooling input must match")
             pins.update(uses)
         self.assertEqual(len(pins), 1, "producer and signer must pin the same shared commit")
-        self.assertRegex(pins.pop(), r"^[0-9a-f]{40}$", "pin a full immutable commit, never a branch or placeholder")
+        self.assertEqual(pins.pop(), "main", "pin storytold/craft-common-actions to @main")
 
 
 class NightlyEnabledCallers(unittest.TestCase):
@@ -739,7 +739,7 @@ def trust_closure_problems(workflows):
             if workflow.lower() in ("nightly-release.yml", "nightly-release.yaml"):
                 if name == "nightly-sign.yml":
                     signer_calls += 1
-                if name != "nightly-sign.yml" or not re.fullmatch(r"[0-9a-f]{40}", ref):
+                if name != "nightly-sign.yml" or ref != "main":
                     problems.append(name + " calls nightly-release.yml@" + ref)
             if workflow.lower() in ("release.yml", "release.yaml"):
                 stable_callers.add(name)
@@ -789,7 +789,7 @@ class NightlySignerBranchTrustClosure(unittest.TestCase):
             "a double-quoted uses key in a flow mapping": {**tree, "extra.yml": 'jobs:\n  x: {"uses": ' + SHARED + "nightly-release.yml@" + "a" * 40 + "}\n"},
             "uses in any flow mapping": {**tree, "extra.yml": "jobs:\n  x:\n    steps:\n      - {uses: actions/checkout@v4}\n"},
             "another caller of the signer": {**tree, "extra.yml": "jobs:\n  x:\n    uses: " + SHARED + "nightly-release.yml@" + "a" * 40 + "\n"},
-            "a mutable signer pin": {**tree, "nightly-sign.yml": re.sub(r"nightly-release\.yml@[0-9a-f]{40}", "nightly-release.yml@main", tree["nightly-sign.yml"])},
+            "a signer caller on a non-main branch or tag ref": {**tree, "nightly-sign.yml": tree["nightly-sign.yml"].replace("nightly-release.yml@main", "nightly-release.yml@v1")},
             "a new stable release caller": {**tree, "extra.yml": "jobs:\n  x:\n    uses: " + SHARED + "release.yml@main\n"},
             "a stable caller on a branch or tag ref": {**tree, "release.yml": tree["release.yml"].replace(SHARED + "release.yml@main", SHARED + "release.yml@v1")},
         }
